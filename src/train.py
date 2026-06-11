@@ -74,7 +74,11 @@ def train_model():
         with open('models/dv.pkl', "wb") as f_out:
             pickle.dump(dv, f_out)
 
+        with open("models/model.pkl", "wb") as f_out:
+            pickle.dump(model, f_out)
+
         mlflow.log_artifact("models/dv.pkl", artifact_path="preprocessor")
+        mlflow.log_artifact("models/model.pkl", artifact_path="model")
         model_info = mlflow.sklearn.log_model(
             sk_model=model,
             artifact_path="model"
