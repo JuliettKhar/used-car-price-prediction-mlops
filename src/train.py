@@ -18,12 +18,13 @@ EXPERIMENT_NAME = "used-car-price-prediction"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 mlflow.set_experiment(EXPERIMENT_NAME)
 
+
 def train_model():
-    df = read_data('data/pre-owned cars.csv')
+    df = read_data("data/pre-owned cars.csv")
     df_clean = clean_data(df)
 
-    df_train = df_clean[df_clean['make_year'] <= 2021].copy()
-    df_test = df_clean[df_clean['make_year'] > 2021].copy()
+    df_train = df_clean[df_clean["make_year"] <= 2021].copy()
+    df_test = df_clean[df_clean["make_year"] > 2021].copy()
 
     train_dicts = df_train[CATEGORICAL + NUMERICAL].to_dict(orient="records")
     test_dicts = df_test[CATEGORICAL + NUMERICAL].to_dict(orient="records")
@@ -49,7 +50,7 @@ def train_model():
         mlflow.set_tag("split_type", "time_based")
         mlflow.set_tag("model_feature_included", "true")
         mlflow.set_tag("leakage_features_excluded", "overall_cost")
-        
+
         mlflow.log_param("train_condition", "make_year <= 2021")
         mlflow.log_param("test_condition", "make_year > 2021")
         mlflow.log_param("categorical_features", CATEGORICAL)
@@ -71,7 +72,7 @@ def train_model():
 
         os.makedirs("models", exist_ok=True)
 
-        with open('models/dv.pkl', "wb") as f_out:
+        with open("models/dv.pkl", "wb") as f_out:
             pickle.dump(dv, f_out)
 
         with open("models/model.pkl", "wb") as f_out:
@@ -79,20 +80,13 @@ def train_model():
 
         mlflow.log_artifact("models/dv.pkl", artifact_path="preprocessor")
         mlflow.log_artifact("models/model.pkl", artifact_path="model")
-        model_info = mlflow.sklearn.log_model(
-            sk_model=model,
-            artifact_path="model"
-        )
+        model_info = mlflow.sklearn.log_model(sk_model=model, artifact_path="model")
 
-        mlflow.register_model(
-            model_info.model_uri,
-            "used-car-price-model"
-        )
+        mlflow.register_model(model_info.model_uri, "used-car-price-model")
 
         print("RMSE:", rmse)
         print("MAE:", mae)
         print("R²:", r2)
-
 
 
 if __name__ == "__main__":
